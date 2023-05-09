@@ -5,7 +5,14 @@ const Employee = (props) => {
   const [employees, setEmployees] = useState(null);
   const [errorGet, sendGetRequest] = useHttp();
   const [errorDelete, sendDeleteRequest] = useHttp();
+  const [errorPost, sendPostRequest] = useHttp();
   const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [newEmployee, setNewEmployee] = useState({
+    firstName: "",
+    lastName: "",
+    employeeNo: "",
+    dob: "",
+  });
 
   const getAllEmployees = (employees) => {
     // Sort by id in ascesding order
@@ -28,6 +35,13 @@ const Employee = (props) => {
     console.log(selectedEmployees);
   };
 
+  const handleEmployeeChange = (event) => {
+    setNewEmployee({
+      ...newEmployee,
+      [event.target.name]: event.target.value,
+    });
+  };
+
   const handleDelete = () => {
     const payload = { ids: selectedEmployees };
 
@@ -35,6 +49,17 @@ const Employee = (props) => {
       "http://localhost:8099/api/v1/employees",
       "delete",
       payload,
+      getAllEmployees
+    );
+  };
+
+  const handleEmployeeSubmit = (event) => {
+    event.preventDefault();
+
+    sendPostRequest(
+      "http://localhost:8099/api/v1/employees",
+      "post",
+      newEmployee,
       getAllEmployees
     );
   };
@@ -98,49 +123,48 @@ const Employee = (props) => {
         </form>
 
         <h3 className="mt-5">Add new employee</h3>
-        <form>
+        <form onSubmit={handleEmployeeSubmit}>
           <div className="mb-3">
             <label className="form-label">First Name</label>
             <input
-              type="email"
+              type="text"
+              name="firstName"
               className="form-control"
-              id="exampleInputEmail1"
+              value={newEmployee.firstName}
+              onChange={handleEmployeeChange}
               aria-describedby="emailHelp"
             />
           </div>
           <div className="mb-3">
             <label className="form-label">Last Name</label>
             <input
-              type="email"
+              type="text"
+              name="lastName"
               className="form-control"
-              id="exampleInputEmail1"
+              value={newEmployee.lastName}
+              onChange={handleEmployeeChange}
               aria-describedby="emailHelp"
             />
           </div>
           <div className="mb-3">
             <label className="form-label">Employee No</label>
             <input
-              type="email"
+              type="text"
+              name="employeeNo"
               className="form-control"
-              id="exampleInputEmail1"
-              aria-describedby="emailHelp"
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">First Name</label>
-            <input
-              type="email"
-              className="form-control"
-              id="exampleInputEmail1"
+              value={newEmployee.employeeNo}
+              onChange={handleEmployeeChange}
               aria-describedby="emailHelp"
             />
           </div>
           <div className="mb-3">
             <label className="form-label">Date of Birth</label>
             <input
-              type="email"
+              type="date"
+              name="dob"
               className="form-control"
-              id="exampleInputEmail1"
+              value={newEmployee.dob}
+              onChange={handleEmployeeChange}
               aria-describedby="emailHelp"
             />
           </div>
