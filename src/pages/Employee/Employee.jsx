@@ -1,24 +1,25 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import useHttp from "../../hooks/use-http";
+// import axios from "axios";
 
 const Employee = (props) => {
   const [employees, setEmployees] = useState(null);
+  const [errorGet, sendGetRequest] = useHttp();
 
-  const getEmployees = async () => {
-    await axios
-      .get("http://localhost:8099/api/v1/employees")
-      .then((response) => {
-        const temp = response.data;
-        response.data.sort((a, b) => a.id - b.id);
-        setEmployees(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const getAllEmployees = (employees) => {
+    // Sort by id in ascesding order
+    employees.sort((a, b) => a.id - b.id);
+
+    setEmployees(employees);
   };
 
   useEffect(() => {
-    getEmployees();
+    sendGetRequest(
+      "http://localhost:8099/api/v1/employees",
+      "GET",
+      null,
+      getAllEmployees
+    );
   }, []);
 
   return (
