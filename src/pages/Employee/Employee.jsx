@@ -20,6 +20,8 @@ const Employee = (props) => {
   });
   const [editEmployeeId, setEditEmployeeId] = useState(null);
 
+  //
+
   const resetNewEmployee = () => {
     setNewEmployee({
       firstName: "",
@@ -122,14 +124,16 @@ const Employee = (props) => {
     resetNewEmployee();
   };
 
-  useEffect(() => {
-    // sendGetRequest(
-    //   BASE_URL_FOR_EMPLOYEE.concat("/all"),
-    //   "get",
-    //   null,
-    //   getAllEmployees
-    // );
+  const sendGetAllEmployeesRequest = () => {
+    sendGetRequest(
+      BASE_URL_FOR_EMPLOYEE.concat("/all"),
+      "get",
+      null,
+      getAllEmployees
+    );
+  };
 
+  const sendGetEmployeePageRequest = () => {
     sendGetRequest(
       BASE_URL_FOR_EMPLOYEE.concat("?page=")
         .concat(currentPage.toString())
@@ -139,6 +143,10 @@ const Employee = (props) => {
       null,
       getPageableEmployees
     );
+  };
+
+  useEffect(() => {
+    sendGetEmployeePageRequest();
   }, [currentPage]);
 
   return (
