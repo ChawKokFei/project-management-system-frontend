@@ -3,7 +3,10 @@ import useHttp from "../../hooks/use-http";
 
 const Employee = (props) => {
   const BASE_URL_FOR_EMPLOYEE = "http://localhost:8099/api/v1/employees";
+  const PAGE_SIZE = 5;
   const [employees, setEmployees] = useState(null);
+  const [employeeTotalPages, setEmployeeTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [errorGet, sendGetRequest] = useHttp();
   const [errorDelete, sendDeleteRequest] = useHttp();
   const [errorPost, sendPostRequest] = useHttp();
@@ -31,6 +34,12 @@ const Employee = (props) => {
     employees.sort((a, b) => a.id - b.id);
 
     setEmployees(employees);
+  };
+
+  const getPageableEmployees = (employeesPage) => {
+    setEmployeeTotalPages(employeesPage.totalPages);
+
+    setEmployees(employeesPage.content);
   };
 
   const getEmployee = (employee) => {
@@ -62,6 +71,10 @@ const Employee = (props) => {
       ...newEmployee,
       [event.target.name]: event.target.value,
     });
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   const handleEdit = () => {
@@ -110,8 +123,23 @@ const Employee = (props) => {
   };
 
   useEffect(() => {
-    sendGetRequest(BASE_URL_FOR_EMPLOYEE, "get", null, getAllEmployees);
-  }, []);
+    // sendGetRequest(
+    //   BASE_URL_FOR_EMPLOYEE.concat("/all"),
+    //   "get",
+    //   null,
+    //   getAllEmployees
+    // );
+
+    sendGetRequest(
+      BASE_URL_FOR_EMPLOYEE.concat("?page=")
+        .concat(currentPage.toString())
+        .concat("&size=")
+        .concat(PAGE_SIZE),
+      "get",
+      null,
+      getPageableEmployees
+    );
+  }, [currentPage]);
 
   return (
     <div className="vw-100 vh-100">
@@ -152,6 +180,53 @@ const Employee = (props) => {
               })}
           </tbody>
         </table>
+        <nav aria-label="Employee list">
+          <ul className="pagination">
+            <li className={`page-item ${currentPage <= 0 ? "disabled" : ""}`}>
+              <a
+                className="page-link"
+                onClick={() => {
+                  handlePageChange(currentPage - 1);
+                }}
+              >
+                Previous
+              </a>
+            </li>
+            {[...Array(employeeTotalPages).keys()].map((pageNumber) => {
+              return (
+                <li
+                  className={`page-item ${
+                    pageNumber === currentPage ? "active" : ""
+                  }`}
+                  key={pageNumber}
+                >
+                  <a
+                    className="page-link"
+                    onClick={() => {
+                      handlePageChange(pageNumber);
+                    }}
+                  >
+                    {pageNumber + 1}
+                  </a>
+                </li>
+              );
+            })}
+            <li
+              className={`page-item ${
+                currentPage + 1 >= employeeTotalPages ? "disabled" : ""
+              }`}
+            >
+              <a
+                className="page-link"
+                onClick={() => {
+                  handlePageChange(currentPage + 1);
+                }}
+              >
+                Next
+              </a>
+            </li>
+          </ul>
+        </nav>
         <button
           type="button"
           className="btn btn-success me-3"
